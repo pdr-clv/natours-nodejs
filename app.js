@@ -178,32 +178,39 @@ const deleteUser = (req,res) => {
 
 // 3. Routes
 
-//app.get('/api/v1/tours', getAllTours); 
-//app.post('/api/v1/tours', createTour);
-//app.get('/api/v1/tours/:id', getTour);  
-//app.patch('/api/v1/tours/:id', updateTour);
-//app.delete('/api/v1/tours/:id', deleteTour);
-
 //we can create route, and later chain all http methods you can request to that endpoing/route
 //we writedown route in only one place, and we chain all methods to route. It is ideal not to repeat route many places.
-app
-  .route('/api/v1/tours')
+
+//we are going to create routers, it will replace app. using middleware, we will connect tourRouter with app.
+
+const tourRouter = express.Router();
+
+//tourRouter in fact is a middleware. We created like a sub application
+//in other words, application will run throught middleware stack, and by the momment it hits route 'api/v1/tours' it will create the tourRouter, it is like a sub application
+app.use('/api/v1/tours',tourRouter);
+//because tourRouter only runs in 'api/v1/tours, we can change route in following calls
+//also we will perform the same for usersRouter
+const userRouter = express.Router();
+app.use('/api/v1/users',userRouter);
+
+tourRouter
+  .route('/')
   .get(getAllTours)
   .post(createTour);
 
-app
-  .route('/api/v1/tours/:id')
+tourRouter
+  .route('/:id')
   .get(getTour)
   .patch(updateTour)
   .delete(deleteTour);
 
-app
-  .route('/api/v1/users')
+userRouter
+  .route('/')
   .get(getAllUsers)
   .post(createUser);
 
-app
-  .route('/api/v1/users/:id')
+userRouter
+  .route('/:id')
   .get(getUser)
   .patch(updateUser)
   .delete(deleteUser);
