@@ -10,24 +10,7 @@ app.use(express.json());
 
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
-//console.log(JSON.parse(tours));
-
-//app.get('/', (req,res) => {
-//  res
-//    .status(200)
-//    .json({
-//      message:'Hello form the server side...', 
-//      app:'Natours'
-//    });
-//}); 
-
-//app.post('/',(req,res) => {
-//  res
-//    .status(200)
-//    .send('You can post to this endpoint...');
-//});
-
-app.get('/api/v1/tours', (req,res) => {
+const getAllTours = (req,res) => {
   res
     .status(200)
     .json({
@@ -37,9 +20,9 @@ app.get('/api/v1/tours', (req,res) => {
         tours
       }
     });
-}); 
+};
 
-app.get('/api/v1/tours/:id', (req,res) => {
+const getTour = (req,res) => {
 //all values params in the url are stored in req.params, it is an object with the fields {id:'4'}
   const id = req.params.id*1;
 //we convert to number multiply by 1 
@@ -58,11 +41,10 @@ app.get('/api/v1/tours/:id', (req,res) => {
       data: {
         tour
       }
-    });
+    });  
+};
 
-}); 
-
-app.post('/api/v1/tours', (req,res) => {
+const createTour = (req,res) => {
 
   const newId = tours[tours.length - 1].id + 1;
 //Object.assign can merge two objects in one
@@ -85,9 +67,9 @@ app.post('/api/v1/tours', (req,res) => {
       });
     }
   );
-}); 
+};
 
-app.patch('/api/v1/tours/:id', (req,res) => {
+const updateTour = (req,res) => {
 
   //all values params in the url are stored in req.params, it is an object with the fields {id:'4'}
   const id = req.params.id*1;
@@ -106,9 +88,9 @@ app.patch('/api/v1/tours/:id', (req,res) => {
     data:'Data will be updated'
   });
 
-});
+};
 
-app.delete('/api/v1/tours/:id', (req,res) => {
+const deleteTour = (req,res) => {
 
   //all values params in the url are stored in req.params, it is an object with the fields {id:'4'}
   const id = req.params.id*1;
@@ -126,8 +108,26 @@ app.delete('/api/v1/tours/:id', (req,res) => {
     data:null
   });
 
-});
+};
 
+//app.get('/api/v1/tours', getAllTours); 
+//app.post('/api/v1/tours', createTour);
+//app.get('/api/v1/tours/:id', getTour);  
+//app.patch('/api/v1/tours/:id', updateTour);
+//app.delete('/api/v1/tours/:id', deleteTour);
+
+//we can create route, and later chain all http methods you can request to that endpoing/route
+//we writedown route in only one place, and we chain all methods to route. It is ideal not to repeat route many places.
+app
+  .route('/api/v1/tours')
+  .get(getAllTours)
+  .post(createTour);
+
+app
+  .route('/api/v1/tours/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(deleteTour);
 
 const port = 3000;
 
