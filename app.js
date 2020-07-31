@@ -11,9 +11,13 @@ const app = express();
 
 //app.use method is in order to use middleware
 //morgan is third part middleware which provides a console.log with few details of info. It has several arguments, interesting the one is 'dev'
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
 //Middleware will catch request before receiving inside the post callback, and it will transform request body into a json.
 app.use(express.json());
+app.use(express.static(`${__dirname}/public`));
 
 //this is our own middleware function, we have to use params req, res, y next is obligatory, otherwise, never will go next step of middleware stack
 // if there is an response before middleware, never will be executed. it is better if they are on top.
