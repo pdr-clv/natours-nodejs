@@ -1,5 +1,4 @@
 const express = require('express');
-const { restart } = require('nodemon');
 const morgan = require('morgan');
 
 const tourRouter = require('./routes/tourRoutes');
