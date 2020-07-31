@@ -23,7 +23,7 @@ app.use((req,res,next) => {
 });
 //this middleare catch the url requested.
 app.use((req,res,next) => {
-  console.log(console.log('Current url requested: ',req.originalUrl));
+  console.log('Current url requested: ',req.originalUrl);
   next();
 });
 //this middleware add date/time of request

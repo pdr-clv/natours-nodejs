@@ -3,6 +3,37 @@ const fs = require('fs');
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
 
 //2. Route handlers
+
+exports.checkID = (req,res,next,val) => {
+    //all values params in the url are stored in req.params, it is an object with the fields {id:'4'}
+  //we convert to number multiply by 1 
+  if (val*1 >= tours.length) {
+    return res.status(404).json({
+      status:'fail',
+      message:'Number tour not valid'
+    });
+  }
+  next();
+};
+
+exports.checkBody = (req,res,next) => {
+
+//we check if req.body object is empty
+    if (Object.keys(req.body).length === 0 ){
+      return res.status(400).json({
+        status:'fail',
+        message:"Bad request! Body can't be empty"
+      });
+//else, check if properties name and price are with data, obligatory fields.
+    } else if (!req.body.name || !req.body.price) {
+      return res.status(400).json({
+        status:'fail',
+        message:"Bad request! At least fields name and price must be filled with data"
+      });
+    }
+  next();
+}
+
 exports.getAllTours = (req,res) => {
   console.log(req.requestTime);
   res
@@ -18,17 +49,9 @@ exports.getAllTours = (req,res) => {
 };
 
 exports.getTour = (req,res) => {
-//all values params in the url are stored in req.params, it is an object with the fields {id:'4'}
-  const id = req.params.id*1;
-//we convert to number multiply by 1 
+  const id = req.params.id * 1;
   const tour = tours.find(el => el.id === id);
-//  if (id >= tours.length) {
-  if (!tour) {
-    return res.status(404).json({
-      status:'fail',
-      message:'Number tour not valid'
-    });
-  }
+
   res
     .status(200)
     .json({
@@ -66,18 +89,6 @@ exports.createTour = (req,res) => {
 
 exports.updateTour = (req,res) => {
 
-  //all values params in the url are stored in req.params, it is an object with the fields {id:'4'}
-  const id = req.params.id*1;
-  //console.log(id);
-  //console.log(req.body);
-//we convert to number multiply by 1 
-  if (id >= tours.length) {
-    return res.status(404).json({
-      status:'fail',
-      message:'Number tour not valid to update'
-    });
-  }
-
   res.status(200).json({
     status:'sucess',
     data:'Data will be updated'
@@ -86,17 +97,6 @@ exports.updateTour = (req,res) => {
 };
 
 exports.deleteTour = (req,res) => {
-
-  //all values params in the url are stored in req.params, it is an object with the fields {id:'4'}
-  const id = req.params.id*1;
-  console.log(id);
-//we convert to number multiply by 1 
-  if (id >= tours.length) {
-    return res.status(404).json({
-      status:'fail',
-      message:'Number tour not valid to delete'
-    });
-  }
 
   res.status(204).json({
     status:'sucess',
