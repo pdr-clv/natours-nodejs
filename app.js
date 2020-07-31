@@ -1,11 +1,13 @@
-const fs = require('fs');
 const express = require('express');
 const { restart } = require('nodemon');
 const morgan = require('morgan');
 
+const tourRouter = require('./routes/tourRoutes');
+const userRouter = require('./routes/userRoutes');
+
 const app = express();
 
-//1. Middlewares
+//1. Middlewares. They will be applied to all routes and requests
 
 //app.use method is in order to use middleware
 //morgan is third part middleware which provides a console.log with few details of info. It has several arguments, interesting the one is 'dev'
@@ -31,191 +33,11 @@ app.use((req,res,next) => {
   next();
 });
 
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
-//2. Route handlers
-const getAllTours = (req,res) => {
-  console.log(req.requestTime);
-  res
-    .status(200)
-    .json({
-      status:'sucess',
-      requestedAt:req.requestTime,
-      results:tours.length,
-      data: {
-        tours
-      }
-    });
-};
 
-const getTour = (req,res) => {
-//all values params in the url are stored in req.params, it is an object with the fields {id:'4'}
-  const id = req.params.id*1;
-//we convert to number multiply by 1 
-  const tour = tours.find(el => el.id === id);
-//  if (id >= tours.length) {
-  if (!tour) {
-    return res.status(404).json({
-      status:'fail',
-      message:'Number tour not valid'
-    });
-  }
-  res
-    .status(200)
-    .json({
-      status:'sucess',
-      data: {
-        tour
-      }
-    });  
-};
-
-const createTour = (req,res) => {
-
-  const newId = tours[tours.length - 1].id + 1;
-//Object.assign can merge two objects in one
-  const newTour = Object.assign(
-    { id: newId },
-    req.body
-  );
-
-  tours.push(newTour);
-
-  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(tours), 
-    (err) => {
-      if (err) throw err;
-      res.status(201).json({
-        status:'sucess',
-        data:{
-          tour:newTour
-        }
-      });
-    }
-  );
-};
-
-const updateTour = (req,res) => {
-
-  //all values params in the url are stored in req.params, it is an object with the fields {id:'4'}
-  const id = req.params.id*1;
-  //console.log(id);
-  //console.log(req.body);
-//we convert to number multiply by 1 
-  if (id >= tours.length) {
-    return res.status(404).json({
-      status:'fail',
-      message:'Number tour not valid to update'
-    });
-  }
-
-  res.status(200).json({
-    status:'sucess',
-    data:'Data will be updated'
-  });
-
-};
-
-const deleteTour = (req,res) => {
-
-  //all values params in the url are stored in req.params, it is an object with the fields {id:'4'}
-  const id = req.params.id*1;
-  console.log(id);
-//we convert to number multiply by 1 
-  if (id >= tours.length) {
-    return res.status(404).json({
-      status:'fail',
-      message:'Number tour not valid to delete'
-    });
-  }
-
-  res.status(204).json({
-    status:'sucess',
-    data:null
-  });
-
-};
-
-const getAllUsers = (req,res) => {
-  res.status(500)
-    .json({
-      status:'error',
-      message:'This route is not yet defined'
-    });
-};
-
-const createUser = (req,res) => {
-  res.status(500)
-    .json({
-      status:'error',
-      message:'This route is not yet defined'
-    });
-};
-
-const getUser = (req,res) => {
-  res.status(500)
-    .json({
-      status:'error',
-      message:'This route is not yet defined'
-    });
-};
-
-const updateUser = (req,res) => {
-  res.status(500)
-    .json({
-      status:'error',
-      message:'This route is not yet defined'
-    });
-};
-
-const deleteUser = (req,res) => {
-  res.status(500)
-    .json({
-      status:'error',
-      message:'This route is not yet defined'
-    });
-};
-
-// 3. Routes
-
-//we can create route, and later chain all http methods you can request to that endpoing/route
-//we writedown route in only one place, and we chain all methods to route. It is ideal not to repeat route many places.
-
-//we are going to create routers, it will replace app. using middleware, we will connect tourRouter with app.
-
-const tourRouter = express.Router();
-
-//tourRouter in fact is a middleware. We created like a sub application
-//in other words, application will run throught middleware stack, and by the momment it hits route 'api/v1/tours' it will create the tourRouter, it is like a sub application
+// 3. Mounting our routes
+//only for certain routes, they will be applied middleware, in this case are the routes.
 app.use('/api/v1/tours',tourRouter);
-//because tourRouter only runs in 'api/v1/tours, we can change route in following calls
-//also we will perform the same for usersRouter
-const userRouter = express.Router();
 app.use('/api/v1/users',userRouter);
 
-tourRouter
-  .route('/')
-  .get(getAllTours)
-  .post(createTour);
-
-tourRouter
-  .route('/:id')
-  .get(getTour)
-  .patch(updateTour)
-  .delete(deleteTour);
-
-userRouter
-  .route('/')
-  .get(getAllUsers)
-  .post(createUser);
-
-userRouter
-  .route('/:id')
-  .get(getUser)
-  .patch(updateUser)
-  .delete(deleteUser);
-
-// 4. Start server
-const port = 3000;
-
-app.listen(port,() => console.log(`App running on port ${port}...`));
+module.exports = app;
