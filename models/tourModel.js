@@ -49,6 +49,7 @@ const tourSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+    select: false, //this field will not be visible in queries, this is the way how you can hide sensitive data
   },
   startDates: [Date],
   
