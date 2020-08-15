@@ -9,12 +9,18 @@ const {
   updateTour,
   deleteTour,
   aliasTopTours,
+  getTourStats,
+  getMonthlyPlan,
 } = tourController;
 
 const router = express.Router();
 
 //this is an alias, in order to get a query selected with top 5 tours, we don't have to be filling those fiels, in that route we will find it automaticlly filtering req.query in middleware.
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
+
+router.route('/tour-stats').get(getTourStats);
+
+router.route('/monthly-plan/:year').get(getMonthlyPlan);
 
 router.route('/').get(getAllTours).post(createTour);
 
