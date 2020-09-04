@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 
+const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -33,27 +34,11 @@ app.use('/api/v1/users', userRouter);
 //if not any route was catched by tourRouter or userRouter, we will get this point, and we will handle error according to the route not chatched.
 //all will catch any method post, get, etc. * will catch any route gets this point.
 app.all('*', (req, res, next) => {
-  /*res.status(404).json({
-    status: 'fail',
-    message: `Can't find ${req.originalUrl} on this server`,
-  });*/
-  //we create an error, and later we will handle this error en next/following Middleware error function.
-  const err = new Error(`Can't find ${req.originalUrl} on this server`);
-  err.status = 'fail';
-  err.statusCode = 400;
-  //any parameter we pass in next function, we know this is an error.
-  next(err);
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
 
 //we will use middelware function comming from moongose, the one that has 4 parameters, moongones already know it is a function to catch if and error happened
 
-app.use((err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+app.use(globalErrorHandler);
 
 module.exports = app;
