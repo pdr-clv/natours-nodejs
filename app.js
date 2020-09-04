@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 
+const AppError = require('./utils/appError');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 
@@ -18,17 +19,6 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
-//this is our own middleware function, we have to use params req, res, y next is obligatory, otherwise, never will go next step of middleware stack
-// if there is an response before middleware, never will be executed. it is better if they are on top.
-app.use((req, res, next) => {
-  console.log('Hello from the middleware');
-  next();
-});
-//this middleare catch the url requested.
-app.use((req, res, next) => {
-  console.log('Current url requested: ', req.originalUrl);
-  next();
-});
 //this middleware add date/time of request
 //we define new property in request called req.requestTime
 app.use((req, res, next) => {
@@ -39,5 +29,31 @@ app.use((req, res, next) => {
 //only for certain routes, they will be applied middleware, in this case are the routes.
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+//if not any route was catched by tourRouter or userRouter, we will get this point, and we will handle error according to the route not chatched.
+//all will catch any method post, get, etc. * will catch any route gets this point.
+app.all('*', (req, res, next) => {
+  /*res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.originalUrl} on this server`,
+  });*/
+  //we create an error, and later we will handle this error en next/following Middleware error function.
+  const err = new Error(`Can't find ${req.originalUrl} on this server`);
+  err.status = 'fail';
+  err.statusCode = 400;
+  //any parameter we pass in next function, we know this is an error.
+  next(err);
+});
+
+//we will use middelware function comming from moongose, the one that has 4 parameters, moongones already know it is a function to catch if and error happened
+
+app.use((err, req, res, next) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+  });
+});
 
 module.exports = app;
