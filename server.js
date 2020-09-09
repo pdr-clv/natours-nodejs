@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
+//we add this listener for uncaught exceptions. errors like console.log(x) x doesn't exists.
+process.on('uncaughtException', (err) => {
+  console.log(err.name, err.message);
+  console.log('Uncaught exception: Shutting down ...');
+  //we shutdown application.
+  process.exit(1);
+});
+
 dotenv.config({ path: './config.env' });
 const app = require('./app');
 
@@ -20,6 +28,18 @@ mongoose
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => console.log(`App running on port ${port}...`));
+const server = app.listen(port, () => console.log(`App running on port ${port}...`));
 
 //the file we have to execute nodemon server.js, we will include in package.json in script -> start, and we will innitialize our application always with npm start / yarn start
+//we add an event listener. when there is a process.on and the name of event.
+
+process.on('unhandledRejection', (err) => {
+  console.log(err.name, err.message);
+  //this if is just to catch if there is no Internet connection.
+  if (err.message.includes('ESERVFAIL')) {
+    console.log('Check Internet connection.');
+  }
+  console.log('Unhadler rejection: Shutting down ...');
+  //we shutdown server.
+  server.close(() => process.exit(1));
+});
