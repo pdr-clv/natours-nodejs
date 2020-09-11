@@ -1,0 +1,60 @@
+const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'User name it is a required field'],
+    trim: true,
+  },
+  email: {
+    type: String,
+    required: [true, 'e-mail it is a required field'],
+    unique: true,
+    lowercase: true,
+    validate: [validator.isEmail, 'Please insert a valid e-mail'],
+  },
+  photo: {
+    type: String,
+    validate: [validator.isURL, 'Please provide a valid url for profile pic'],
+  },
+  password: {
+    type: String,
+    required: [true, 'Password it is a required field'],
+    minlength: 8,
+    select: false,
+  },
+  passwordConfirm: {
+    type: String,
+    required: [true, 'Please confirm your password'],
+    validate: {
+      //this only works on CREATE and SAVE. Doesn't work with UPDATE.
+      validator: function (val) {
+        return val === this.password;
+      },
+      message: 'Password and PasswordConfirm are not the same',
+    },
+  },
+});
+
+userSchema.pre('save', async function (next) {
+  //first of all, if password hasn't been modified, we will go next, we will not run anything.
+  if (!this.isModified('password')) next();
+  //if password has been modiffied. We set 12 level encription, it is more than enough.
+  this.password = await bcrypt.hash(this.password, 12);
+  //passwordConfirm, once did validation, it doesn't make sense to store it in database, we set it undefined.
+  this.passwordConfirm = undefined;
+  next();
+});
+
+userSchema.methods.isCorrectPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
