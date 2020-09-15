@@ -2,6 +2,9 @@ const express = require('express');
 //we are going to create routers, it will replace app. using middleware, we will connect tourRouter with app.
 const tourController = require('../controllers/tourController');
 //we desectructure object controller. It has all functions of handlers of create, delete, etc.
+
+const authController = require('../controllers/authController');
+
 const {
   getAllTours,
   createTour,
@@ -12,6 +15,8 @@ const {
   getTourStats,
   getMonthlyPlan,
 } = tourController;
+//we will add middleware protect function to getAll tours, and we will check if user has correct token
+const { protect, restrictTo } = authController;
 
 const router = express.Router();
 
@@ -22,8 +27,13 @@ router.route('/tour-stats').get(getTourStats);
 
 router.route('/monthly-plan/:year').get(getMonthlyPlan);
 
-router.route('/').get(getAllTours).post(createTour);
+//it will run first middle ware protect function. checking if there is valid token.
+router.route('/').get(protect, getAllTours).post(createTour);
 
-router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
+router
+  .route('/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;

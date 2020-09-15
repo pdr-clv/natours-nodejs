@@ -19,6 +19,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     validate: [validator.isURL, 'Please provide a valid url for profile pic'],
   },
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin'],
+    default: 'user',
+  },
   password: {
     type: String,
     required: [true, 'Password it is a required field'],
@@ -36,6 +41,7 @@ const userSchema = new mongoose.Schema({
       message: 'Password and PasswordConfirm are not the same',
     },
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -53,6 +59,14 @@ userSchema.methods.isCorrectPassword = async function (
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
+  if (this.passwordChangedAt) {
+    const passwordTimeStamp = this.passwordChangedAt.getTime() / 1000;
+    return JWTTimeStamp < passwordTimeStamp;
+  }
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);
