@@ -57,6 +57,14 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre('save', function (next) {
+  //this middleware is for reset property passwordChangedAt. If password is not modified or document is new, then next
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000; //we take out one second, because if passwordChangedAt is greater than the following JWT token we will get, we will have problems logging in.
+  next();
+});
+
 userSchema.methods.isCorrectPassword = async function (
   candidatePassword,
   userPassword
@@ -80,7 +88,6 @@ userSchema.methods.createPasswordResetToken = function () {
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-  console.log({ resetToken }, this.passwordResetToken);
   //it iwll expire en 10 minutes
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
