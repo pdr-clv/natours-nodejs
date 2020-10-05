@@ -1,5 +1,10 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
@@ -8,18 +13,50 @@ const userRouter = require('./routes/userRoutes');
 
 const app = express();
 
-//1. Middlewares. They will be applied to all routes and requests
+//1. GLOBAL MIDDLEWARES. They will be applied to all routes and requests
+//Set Security HTTP Headers. Add new headers with more security details, following up secure practices
+app.use(helmet());
 
-//app.use method is in order to use middleware
+//Development logging
 //morgan is third part middleware which provides a console.log with few details of info. It has several arguments, interesting the one is 'dev'
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+//this is to limit 100 request per 45 minutes.
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 45 * 60 * 1000,
+  message: 'Too many requests from this IP, try again in 45 minutes',
+});
 
+app.use('/api', limiter); //if we don't set /api, limiter will affecto to all routes, we want it for the route api, it could be in blank this field.
 //Middleware will catch request before receiving inside the post callback, and it will transform request body into a json.
-app.use(express.json());
+
+//Body parser, reading data from the body into req.body, we will make a limit of 10kg in the jason body request
+app.use(express.json({ limit: '10kb' }));
+//after getting json req.body we can sanitizate this data.
+//Data sanitization agains NoSQL query injection
+app.use(mongoSanitize()); //this middleware remove all dolar signs in the querries.
+//Data sanitization agains XSS (Cross sites)
+app.use(xss()); //this removes all HTML code injected in the user text box.
+//cleaning http parameters polution, prevent if user or attacker input parameters in http address bar, like two sort & sort or something like this.
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  })
+);
+
+//serving static files
 app.use(express.static(`${__dirname}/public`));
 
+//Some test middleware
 //this middleware add date/time of request
 //we define new property in request called req.requestTime
 app.use((req, res, next) => {

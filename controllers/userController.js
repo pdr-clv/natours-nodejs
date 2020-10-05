@@ -24,7 +24,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.updateme = catchAsync(async (req, res, next) => {
+exports.updateMe = catchAsync(async (req, res, next) => {
   //this function is to update current User logged, but not to change password, for password you have to use the route /updatepassword
   //1) Create error is user post password in the body. We don't want to update password.
   if (req.body.password || req.body.passwordConfirm) {
@@ -51,6 +51,14 @@ exports.updateme = catchAsync(async (req, res, next) => {
     data: {
       user: updatedUser,
     },
+  });
+});
+
+exports.deleteMe = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user._id, { active: false });
+  res.status(204).json({
+    status: 'sucess',
+    data: null,
   });
 });
 
