@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+//const User = require('./userModel.js');
 //const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
@@ -102,6 +103,13 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
+    //guides: Array, this is if we want to embed data, to normalize data, we have to do as it follows.
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -119,12 +127,16 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
-/*
-tourSchema.pre('save', function (next) {
-  console.log('Document will be saved ...');
-  next();
-});
 
+/* This code is if we want to embed guides data in our data base
+//we will insert a user Id, and we will pass all info there is in user collection to embed in database.
+tourSchema.pre('save', async function (next) {
+  const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+  //guidesPromises is an Array with promises, we will await for all of them, and we will assing result to this.guides, and now it will be an array full with all info of users, not only id.
+  this.guides = await Promise.all(guidesPromises);
+  next();
+}); */
+/*
 tourSchema.post('save', function (doc, next) {
   console.log(doc);
   next();
