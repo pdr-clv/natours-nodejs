@@ -121,6 +121,13 @@ tourSchema.virtual('durationWeeks').get(function () {
   //we use function, not an arrow function, because function has access to this, and arrow function has all variable encapsulated.
   return this.duration / 7;
 });
+//Virtual populating
+// this virtual field will fix the problem of childReference, you can know the info of all ChildReferences, but it will not be persisted in database, it will be only virtual property.
+tourSchema.virtual('reviews', {
+  ref: 'Review', //name of the model you are referencing
+  foreignField: 'tour', //foreign property of the model you are referencing.
+  localField: '_id', //this is the local property from the Parent model will be related with foreign key.
+});
 
 //DOCUMENT MIDDLEWARE: runs before save() and create()
 tourSchema.pre('save', function (next) {

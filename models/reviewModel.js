@@ -37,10 +37,11 @@ reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'user',
     select: 'name photo',
-  }).populate({
+  });
+  /*.populate({ //we will not populate tour, because we will call reviews from tour, later it will appear tour again, and it doesn't make much sense
     path: 'tour',
     select: 'name',
-  });
+  });*/
   next();
 });
 
