@@ -8,7 +8,8 @@ const {
 
 const { protect, restrictTo } = authController;
 
-const router = express.Router();
+//we add mergeParams true because we want to have access to the params that they are in the previous route that was call this route
+const router = express.Router({ mergeParams: true });
 
 router
   .route('/')

@@ -2,8 +2,9 @@ const express = require('express');
 //we are going to create routers, it will replace app. using middleware, we will connect tourRouter with app.
 const tourController = require('../controllers/tourController');
 //we desectructure object controller. It has all functions of handlers of create, delete, etc.
-
 const authController = require('../controllers/authController');
+
+const reviewRouter = require('./reviewRoutes');
 
 const {
   getAllTours,
@@ -20,6 +21,9 @@ const { protect, restrictTo } = authController;
 
 const router = express.Router();
 
+//we will add middleware, if the route has tourid/reviews, that means we will directing to reviewrouter, where it is all reviewController.
+router.use('/:tourId/reviews', reviewRouter);
+
 //this is an alias, in order to get a query selected with top 5 tours, we don't have to be filling those fiels, in that route we will find it automaticlly filtering req.query in middleware.
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 
@@ -35,5 +39,10 @@ router
   .get(getTour)
   .patch(updateTour)
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
+
+//this code will be removed, because from tour router, you have to create a review from review router
+//router
+//  .route('/:tourId/reviews')
+//  .post(protect, restrictTo('user'), createReview);
 
 module.exports = router;
