@@ -15,21 +15,6 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getAllUsers = getAll(User);
-
-/*
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-
-  res.status(200).json({
-    status: 'sucess',
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
-*/
 exports.updateMe = catchAsync(async (req, res, next) => {
   //this function is to update current User logged, but not to change password, for password you have to use the route /updatepassword
   //1) Create error is user post password in the body. We don't want to update password.
@@ -75,16 +60,8 @@ exports.createUser = (req, res) => {
   });
 };
 
+exports.getAllUsers = getAll(User);
 exports.getUser = getOne(User);
-/*
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};*/
-
 //Do not change passwords with this option.
 exports.updateUser = updateOne(User);
-
 exports.deleteUser = deleteOne(User);
