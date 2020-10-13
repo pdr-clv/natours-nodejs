@@ -2,7 +2,11 @@ const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
 //this is middleware, this is why has next.
+
+const { deleteOne, updateOne, createOne, getOne, getAll } = factory;
+
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
   req.query.sort = '-ratingsAverage,price';
@@ -10,6 +14,8 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
+exports.getAllTours = getAll(Tour);
+/*
 exports.getAllTours = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(Tour.find(), req.query)
     .filter()
@@ -27,7 +33,9 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
     },
   });
 });
-
+*/
+exports.getTour = getOne(Tour, { path: 'reviews' });
+/*
 exports.getTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.id).populate('reviews');
   //if we type a correct id, valid, but has no content, we will load this 404 error.
@@ -41,7 +49,9 @@ exports.getTour = catchAsync(async (req, res, next) => {
     },
   });
 });
-
+*/
+exports.createTour = createOne(Tour);
+/*
 exports.createTour = catchAsync(async (req, res, next) => {
   const newTour = await Tour.create(req.body);
   res.status(201).json({
@@ -50,8 +60,10 @@ exports.createTour = catchAsync(async (req, res, next) => {
       tour: newTour,
     },
   });
-});
+}); */
 
+exports.updateTour = updateOne(Tour);
+/*
 exports.updateTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -66,8 +78,11 @@ exports.updateTour = catchAsync(async (req, res, next) => {
       tour,
     },
   });
-});
+}); */
 
+exports.deleteTour = deleteOne(Tour);
+
+/*
 exports.deleteTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.findByIdAndDelete(req.params.id);
   if (!tour) {
@@ -77,7 +92,7 @@ exports.deleteTour = catchAsync(async (req, res, next) => {
     status: 'sucess',
     data: null,
   });
-});
+}); */
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([

@@ -1,6 +1,9 @@
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
+
+const { deleteOne, updateOne, getOne, getAll } = factory;
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -12,6 +15,9 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
+exports.getAllUsers = getAll(User);
+
+/*
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
 
@@ -23,7 +29,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     },
   });
 });
-
+*/
 exports.updateMe = catchAsync(async (req, res, next) => {
   //this function is to update current User logged, but not to change password, for password you have to use the route /updatepassword
   //1) Create error is user post password in the body. We don't want to update password.
@@ -62,34 +68,23 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createUser = (req,res) => {
-  res.status(500)
-    .json({
-      status:'error',
-      message:'This route is not yet defined'
-    });
+exports.createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not working!! Please use /signup route',
+  });
 };
 
-exports.getUser = (req,res) => {
-  res.status(500)
-    .json({
-      status:'error',
-      message:'This route is not yet defined'
-    });
-};
+exports.getUser = getOne(User);
+/*
+exports.getUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined',
+  });
+};*/
 
-exports.updateUser = (req,res) => {
-  res.status(500)
-    .json({
-      status:'error',
-      message:'This route is not yet defined'
-    });
-};
+//Do not change passwords with this option.
+exports.updateUser = updateOne(User);
 
-exports.deleteUser = (req,res) => {
-  res.status(500)
-    .json({
-      status:'error',
-      message:'This route is not yet defined'
-    });
-};
+exports.deleteUser = deleteOne(User);
