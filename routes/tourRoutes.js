@@ -29,15 +29,24 @@ router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 
 router.route('/tour-stats').get(getTourStats);
 
-router.route('/monthly-plan/:year').get(getMonthlyPlan);
+router
+  .route(
+    protect,
+    restrictTo('admin', 'lead-guide', 'guide'),
+    '/monthly-plan/:year'
+  )
+  .get(getMonthlyPlan);
 
 //it will run first middle ware protect function. checking if there is valid token.
-router.route('/').get(protect, getAllTours).post(createTour);
+router
+  .route('/')
+  .get(getAllTours)
+  .post(protect, restrictTo('admin', 'lead-guide'), createTour);
 
 router
   .route('/:id')
   .get(getTour)
-  .patch(updateTour)
+  .patch(protect, restrictTo('admin', 'lead-guide'), updateTour)
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 //this code will be removed, because from tour router, you have to create a review from review router

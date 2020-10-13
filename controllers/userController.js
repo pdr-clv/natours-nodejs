@@ -15,6 +15,12 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
+//we add this getMe middleware for the route /me, because there is no spcification of params.id in the url, it will get the user._id from the user logged in.
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+};
+
 exports.updateMe = catchAsync(async (req, res, next) => {
   //this function is to update current User logged, but not to change password, for password you have to use the route /updatepassword
   //1) Create error is user post password in the body. We don't want to update password.

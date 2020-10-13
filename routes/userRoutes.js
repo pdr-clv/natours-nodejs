@@ -2,7 +2,7 @@ const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 
-const { protect } = authController;
+const { protect, restrictTo } = authController;
 
 const {
   singUp,
@@ -20,17 +20,27 @@ const {
   deleteUser,
   updateMe,
   deleteMe,
+  getMe,
 } = userController;
 
 const router = express.Router();
 
+//all these routes don't need authentication.
 router.post('/signup', singUp);
 router.post('/login', logIn);
 router.post('/forgotpassword', forgotPassword);
 router.patch('/resetpassword/:token', resetPassword);
-router.patch('/updatepassword', protect, updatePassword);
-router.patch('/updateme', protect, updateMe);
-router.delete('/deleteme', protect, deleteMe);
+
+//we use middleware funciont protect, and all end points beyond this point, will need a user authenticated.
+router.use(protect);
+
+router.patch('/updatepassword', updatePassword);
+router.patch('/updateme', updateMe);
+router.delete('/deleteme', deleteMe);
+router.get('/me', getMe, getUser);
+
+//beyond this point, only administrator will be allowed to perform actions in these end points.
+router.use(restrictTo('admin'));
 
 router.route('/').get(getAllUsers).post(createUser);
 
