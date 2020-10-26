@@ -117,6 +117,14 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+//definition of indexes
+//tourSchema.index({ price: 1 });
+//definition of compound indexes, very fast querries if you know you will use often this compound two search fields.
+// -1 it is because it will be descending order this common query.
+//we don't have to create one by one, as long as they are included in componed index.
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
 tourSchema.virtual('durationWeeks').get(function () {
   //we use function, not an arrow function, because function has access to this, and arrow function has all variable encapsulated.
   return this.duration / 7;

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Tour = require('./tourModel');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -43,6 +44,52 @@ reviewSchema.pre(/^find/, function (next) {
     select: 'name',
   });*/
   next();
+});
+
+//this middleware it is an statics function to update automatically on tour, rating and ratings number.
+reviewSchema.statics.calcAverageRatings = async function (tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId },
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: { $sum: 1 },
+        averageRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].averageRating,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
+};
+
+//middleware, before creating a review, it will fire calcAverageRatings
+reviewSchema.post('save', function () {
+  //this points to current review
+  this.constructor.calcAverageRatings(this.tour);
+});
+
+//middleware to catch findByIdAndUpdate and Delete
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  //we can get the review target as it follows
+  //the trick to save variable in pre, and access to them in post middleware is calling this.rev.
+  this.rev = await this.findOne();
+  console.log(this.rev);
+  next();
+});
+
+reviewSchema.post(/^findOneAnd/, async function () {
+  await this.rev.constructor.calcAverageRatings(this.rev.tour);
 });
 
 const Review = mongoose.model('Review', reviewSchema);
