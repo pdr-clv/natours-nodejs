@@ -125,6 +125,7 @@ const tourSchema = new mongoose.Schema(
 //we don't have to create one by one, as long as they are included in componed index.
 tourSchema.index({ price: 1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 tourSchema.virtual('durationWeeks').get(function () {
   //we use function, not an arrow function, because function has access to this, and arrow function has all variable encapsulated.
@@ -182,14 +183,14 @@ tourSchema.post(/^find/, function (docs, next) {
 });
 
 //AGGREGATION MIDDLEWARE
-
-tourSchema.pre('aggregate', function (next) {
+// we will delete secretTour middleware, because otherwise it will not work geoNear aggregation to get distances from one point to Tours
+/*tourSchema.pre('aggregate', function (next) {
   //pipeline object hast the information of the query. We can chain another match state previous to match or the aggregation
   //pipeline is an array. we will add one element to the beginning of array with unshift
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   //console.log(this.pipeline());
   next();
-});
+});*/
 
 const Tour = mongoose.model('Tour', tourSchema);
 

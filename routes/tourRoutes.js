@@ -15,6 +15,8 @@ const {
   aliasTopTours,
   getTourStats,
   getMonthlyPlan,
+  getToursWithin,
+  getDistances,
 } = tourController;
 //we will add middleware protect function to getAll tours, and we will check if user has correct token
 const { protect, restrictTo } = authController;
@@ -36,6 +38,14 @@ router
     '/monthly-plan/:year'
   )
   .get(getMonthlyPlan);
+
+//we will pass an url like /tours-within/233/center/-40,38/unit/mi
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(getToursWithin);
+
+//we will calculate all tours included in the distance from one point. No need of distance param (radius)
+router.route('/distances/:latlng/unit/:unit').get(getDistances);
 
 //it will run first middle ware protect function. checking if there is valid token.
 router
