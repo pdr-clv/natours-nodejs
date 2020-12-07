@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -14,7 +15,15 @@ const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
 
+//we tell express, we will use pug like templates for views
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 //1. GLOBAL MIDDLEWARES. They will be applied to all routes and requests
+
+//serving static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 //Set Security HTTP Headers. Add new headers with more security details, following up secure practices
 app.use(helmet());
 
@@ -54,9 +63,6 @@ app.use(
   })
 );
 
-//serving static files
-app.use(express.static(`${__dirname}/public`));
-
 //Some test middleware
 //this middleware add date/time of request
 //we define new property in request called req.requestTime
@@ -66,6 +72,13 @@ app.use((req, res, next) => {
 });
 // 3. Mounting our routes
 //only for certain routes, they will be applied middleware, in this case are the routes.
+app.get('/', (req, res) => {
+  res.status(200).render('base', {
+    tour: 'The Forest Hiker',
+    user: 'Pedro',
+  });
+});
+
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);

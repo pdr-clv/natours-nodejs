@@ -1,0 +1,17 @@
+doctype html
+html
+  head
+    //-string with interpolation, like in js ${}
+    title Natours | #{tour}
+    link(rel='stylesheet' href='css/style.css')
+    link(rel='shortcut icon' type='image/png' href='img/favicon.png')
+  body
+    h1= tour
+    //- =tour, because we passed the object { next to base in app.js}
+    p This is just some text added by 
+      span=user.toUpperCase()
+
+      -const x = 10
+
+    h2= 2 * x
+      //-we can run javascript (buffered code) in the code comming from the object
