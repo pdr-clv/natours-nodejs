@@ -1,5 +1,6 @@
 /* eslint-disable */
 
+//TRICK we get information of locations, the one was passed using the trick of property data-locations in template.
 const locations = JSON.parse(document.getElementById('map').dataset.locations);
 
 console.log(locations);
@@ -9,8 +10,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoicGRyY2x2IiwiYSI6ImNrZWl4ZWIzNzBwaGYycXBkb3I1Y
 var map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/pdrclv/ckioor7s54zoi17qsizk5sy0r',
-  minZoom: 7,
-  //scrollZoom: false,
+  scrollZoom: false,
   /*center:[-118.113491, 34.111745],
   zoom: 9,
   interactive: false,*/

@@ -6,6 +6,8 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+//we need cookie-parser package to get access to cookie sent from server to the browser
+const cookieParser = require('cookie-parser');
 
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
@@ -45,6 +47,8 @@ app.use('/api', limiter); //if we don't set /api, limiter will affecto to all ro
 
 //Body parser, reading data from the body into req.body, we will make a limit of 10kg in the jason body request
 app.use(express.json({ limit: '10kb' }));
+//cookie parser is similar like body-parser, parses data from cookie
+app.use(cookieParser());
 //after getting json req.body we can sanitizate this data.
 //Data sanitization agains NoSQL query injection
 app.use(mongoSanitize()); //this middleware remove all dolar signs in the querries.
@@ -69,6 +73,7 @@ app.use(
 //we define new property in request called req.requestTime
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  console.log(req.cookies);
   next();
 });
 // 3. Mounting our routes

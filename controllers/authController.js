@@ -79,6 +79,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
 
   if (!token) {
@@ -112,6 +114,32 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   //Once is everything checked, now next, this GRANT ACCESS TO PROTECTED ROUTE.
   req.user = currentUser;
+  next();
+});
+
+//Similar to protect route. Only for conditional rendering pages, wether user is logged in or not. There is no error handling.
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  // 1) Getting token and check if it exists in browser cookies
+  if (req.cookies.jwt) {
+    // 1. verify token
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    );
+    // 2. Check if user exists
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      return next();
+    }
+    // 3. CHECK if user changed password after the token was issued
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return next();
+    }
+    // Finally, if we reach this point, it means there is user logged in. We make it aceesible to our new template
+    //This is like passing data from one template to another template
+    res.locals.user = currentUser;
+    return next();
+  }
   next();
 });
 

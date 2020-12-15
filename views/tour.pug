@@ -63,6 +63,7 @@ block content
         img.picture-box__img(src=`/img/tours/${img}`, alt=`Photo ${i+1}` class=`picture-box__img--${i+1}`)
 
   section.section-map
+    //- TRICK with property data-locations, we will pass all info like string to the js file.
     #map(data-locations=`${JSON.stringify(tour.locations)}`)
 
   section.section-reviews
