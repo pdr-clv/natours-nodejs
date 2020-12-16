@@ -10,6 +10,7 @@ const {
   forgotPassword,
   resetPassword,
   updatePassword,
+  logOut,
 } = authController;
 
 const {
@@ -28,6 +29,7 @@ const router = express.Router();
 //all these routes don't need authentication.
 router.post('/signup', singUp);
 router.post('/login', logIn);
+router.get('/logout', logOut);
 router.post('/forgotpassword', forgotPassword);
 router.patch('/resetpassword/:token', resetPassword);
 

@@ -70,6 +70,14 @@ exports.logIn = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+exports.logOut = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'success' });
+};
+
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check if it exists token
   // token will be sent in the http header with the request.
@@ -118,30 +126,35 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 //Similar to protect route. Only for conditional rendering pages, wether user is logged in or not. There is no error handling.
-exports.isLoggedIn = catchAsync(async (req, res, next) => {
+exports.isLoggedIn = async (req, res, next) => {
   // 1) Getting token and check if it exists in browser cookies
   if (req.cookies.jwt) {
-    // 1. verify token
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET
-    );
-    // 2. Check if user exists
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) {
+    //for logging out, we don't want to catch error in errormiddleware when jwt.verify fails, so we create this try, and when jwt is loggedout, it will go to catch, and it will be next()
+    try {
+      // 1. verify token
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
+      // 2. Check if user exists
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) {
+        return next();
+      }
+      // 3. CHECK if user changed password after the token was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next();
+      }
+      // Finally, if we reach this point, it means there is user logged in. We make it aceesible to our new template
+      //This is like passing data from one template to another template
+      res.locals.user = currentUser;
+      return next();
+    } catch (err) {
       return next();
     }
-    // 3. CHECK if user changed password after the token was issued
-    if (currentUser.changedPasswordAfter(decoded.iat)) {
-      return next();
-    }
-    // Finally, if we reach this point, it means there is user logged in. We make it aceesible to our new template
-    //This is like passing data from one template to another template
-    res.locals.user = currentUser;
-    return next();
   }
   next();
-});
+};
 
 //we can't pass arguments in a middleware function. We have to wrap middleware function.
 exports.restrictTo = (...roles) => {
