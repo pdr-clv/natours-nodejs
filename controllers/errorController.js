@@ -18,12 +18,21 @@ const handleValidationErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
-const sendErrorDev = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    error: err,
-    message: err.message,
-    stack: err.stack,
+const sendErrorDev = (err, req, res) => {
+  //we check wether url begins with api/ or not, if it doesn't we know we are in view mode, and we will render an error html page/pug template
+  //A. For API error handling, we sent this json
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(err.statusCode).json({
+      status: err.status,
+      error: err,
+      message: err.message,
+      stack: err.stack,
+    });
+  }
+  //B. For RENDERED WEBSITE error handling. We render 'error' pug template
+  return res.status(err.statusCode).render('error', {
+    title: 'Something went wrong',
+    msg: err.message,
   });
 };
 
@@ -33,23 +42,42 @@ const handleJWTError = () =>
 const handleJWTExpiresError = () =>
   new AppError('Your token has expired, please log in again', 401);
 
-const sendErrorProd = (err, res) => {
-  //operational error, trusted error: send message to client.
-  if (err.isOperacional) {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
-  } else {
-    //programming or other unknown error: don't lek error details in production.
+const sendErrorProd = (err, req, res) => {
+  //we check wether url begins with api/ or not, if it doesn't we know we are in view mode, and we will render an error html page/pug template
+  //A. For API error handling, we sent this json
+  if (req.originalUrl.startsWith('/api')) {
+    //operational error, trusted error: send message to client.
+    if (err.isOperacional) {
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      });
+    }
+    //programming or other unknown error: don't leak error details in production.
     //first log error
     console.error('ERROR', err);
     //second generate message
-    res.status(500).json({
+    return res.status(500).json({
       status: 'error',
       message: 'Something went wrong',
     });
   }
+  //B. For RENDERED WEBSITE error handling. We render 'error' pug template
+  //operational error, trusted error: send message to client.
+  if (err.isOperacional) {
+    return res.status(err.statusCode).render('error', {
+      title: 'Something went wrong',
+      msg: err.message,
+    });
+  }
+  //programming or other unknown error: don't leak error details in production.
+  //first log error
+  console.error('ERROR', err);
+  //second generate message
+  return res.status(err.statusCode).render('error', {
+    title: 'Something went wrong',
+    msg: 'It ocurred an error. Please try again later',
+  });
 };
 
 module.exports = (err, req, res, next) => {
@@ -57,9 +85,9 @@ module.exports = (err, req, res, next) => {
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
-    sendErrorDev(err, res);
+    sendErrorDev(err, req, res);
   } else if (process.env.NODE_ENV === 'production') {
-    let error = { ...err };
+    let error = { message: err.message, ...err };
     if (error.kind === 'ObjectId') error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
     if (error._message === 'Validation failed')
@@ -67,6 +95,6 @@ module.exports = (err, req, res, next) => {
     if (error.name === 'JsonWebTokenError') error = handleJWTError();
     if (error.name === 'TokenExpiredError') error = handleJWTExpiresError();
     //console.log(err);
-    sendErrorProd(error, res);
+    sendErrorProd(error, req, res);
   }
 };
