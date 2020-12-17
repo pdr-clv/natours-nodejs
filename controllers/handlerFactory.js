@@ -9,7 +9,7 @@ exports.deleteOne = (Model) =>
       return next(new AppError('No document founded with this ID', 404));
     }
     res.status(204).json({
-      status: 'sucess',
+      status: 'success',
       data: null,
     });
   });
@@ -24,7 +24,7 @@ exports.updateOne = (Model) =>
       return next(new AppError('No document founded with this ID', 404));
     }
     res.status(200).json({
-      status: 'sucess',
+      status: 'success',
       data: {
         data: doc,
       },
@@ -35,7 +35,7 @@ exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.create(req.body);
     res.status(201).json({
-      status: 'sucess',
+      status: 'success',
       data: {
         data: doc,
       },
@@ -52,7 +52,7 @@ exports.getOne = (Model, populateOptions) =>
       return next(new AppError('No document founded with this ID', 404));
     }
     res.status(200).json({
-      status: 'sucess',
+      status: 'success',
       data: {
         data: doc,
       },
@@ -74,7 +74,7 @@ exports.getAll = (Model) =>
     const docs = await features.query;
 
     res.status(200).json({
-      status: 'sucess',
+      status: 'success',
       results: docs.length,
       data: {
         data: docs,

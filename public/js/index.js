@@ -6,11 +6,14 @@ import '@babel/polyfill';
 
 import { login, logout } from './login';
 import { displayMap } from './mapbox';
+import { updateSettings } from './updateSettings';
 
 //DOM ELEMENTS
 const mapBox = document.getElementById('map');
-const loginForm = document.querySelector('.form');
+const loginForm = document.querySelector('.form--login');
 const logOutBtn = document.querySelector('.nav__el--logout');
+const accountForm = document.querySelector('.form-user-data');
+const changePassForm = document.querySelector('.form-user-password');
 
 //DELEGATION OF FUNCTIONS
 if (mapBox) {
@@ -28,6 +31,31 @@ if (loginForm)
   });
 
 if (logOutBtn) logOutBtn.addEventListener('click', logout);
+
+if (accountForm)
+  accountForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+
+    updateSettings({ name, email }, 'data');
+  });
+
+if (changePassForm)
+  changePassForm.addEventListener('submit', async e=> {
+    e.preventDefault();
+    //little trick to create an animation, instead an spinner to inform user password is updating while the async request.
+    document.querySelector('.btn--save-password').textContent = 'Updating ...';
+    const password = document.getElementById('password-current').value;
+    const newPassword = document.getElementById('password').value;
+    const newPasswordConfirm = document.getElementById('password-confirm').value;
+    await updateSettings({ password, newPassword, newPasswordConfirm }, 'password');
+    //we wait for async functions updateSettings, and later we will clear text-inputs.
+    document.querySelector('.btn--save-password').textContent = 'Save Password';
+    document.getElementById('password-current').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('password-confirm').value = '';
+  });
 
 
 

@@ -37,7 +37,7 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
     //},
   ]);
   res.status(200).json({
-    status: 'sucess',
+    status: 'success',
     data: {
       stats,
     },
@@ -83,7 +83,7 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
   ]);
 
   res.status(200).json({
-    status: 'sucess',
+    status: 'success',
     data: {
       plan,
     },
