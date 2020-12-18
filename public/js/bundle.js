@@ -8609,7 +8609,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // type is if we are going to change personal data or password.
 var updateSettings = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(data, type) {
-    var urlEndPoint, res;
+    var urlEndPoint, res, typeCapitalized;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -8627,7 +8627,9 @@ var updateSettings = /*#__PURE__*/function () {
             res = _context.sent;
 
             if (res.data.status === 'success') {
-              (0, _alert.showAlert)('success', "".concat(type.toUpperCase(), " updated successfully!"));
+              //we make first letter capital, to make a better experience to the user, reading properly first word in capital in the alert.
+              typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
+              (0, _alert.showAlert)('success', "".concat(typeCapitalized, " updated successfully!"));
             }
 
             _context.next = 11;

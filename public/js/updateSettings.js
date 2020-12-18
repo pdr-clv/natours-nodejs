@@ -12,7 +12,9 @@ export const updateSettings = async (data, type) => {
       data
     });
     if (res.data.status === 'success') {
-      showAlert('success', `${type.toUpperCase()} updated successfully!`);
+      //we make first letter capital, to make a better experience to the user, reading properly first word in capital in the alert.
+      const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
+      showAlert('success', `${typeCapitalized} updated successfully!`);
     }
   } catch (err) {
     showAlert('error', err.response.data.message);

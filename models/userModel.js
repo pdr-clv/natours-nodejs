@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    validate: [validator.isURL, 'Please provide a valid url for profile pic'],
+    default: 'default.jpg',
   },
   role: {
     type: String,
