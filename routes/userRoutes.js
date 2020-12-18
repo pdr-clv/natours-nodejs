@@ -3,8 +3,6 @@ const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 
-const { protect, restrictTo } = authController;
-
 const {
   singUp,
   logIn,
@@ -12,6 +10,8 @@ const {
   resetPassword,
   updatePassword,
   logOut,
+  protect,
+  restrictTo,
 } = authController;
 
 const {
@@ -24,6 +24,7 @@ const {
   deleteMe,
   getMe,
   uploadUserPhoto,
+  resizeUserPhoto,
 } = userController;
 
 const router = express.Router();
@@ -39,7 +40,7 @@ router.patch('/resetpassword/:token', resetPassword);
 router.use(protect);
 
 router.patch('/updatepassword', updatePassword);
-router.patch('/updateme', uploadUserPhoto, updateMe);
+router.patch('/updateme', uploadUserPhoto, resizeUserPhoto, updateMe);
 router.delete('/deleteme', deleteMe);
 router.get('/me', getMe, getUser);
 

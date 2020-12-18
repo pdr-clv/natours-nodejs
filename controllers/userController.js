@@ -1,4 +1,5 @@
 const multer = require('multer');
+const sharp = require('sharp');
 
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
@@ -8,6 +9,7 @@ const factory = require('./handlerFactory');
 const { deleteOne, updateOne, getOne, getAll } = factory;
 
 //multer json settings, we create multerStore and multerFilter
+/* //if we want to use sharp to process image uploaded, it is better to save file in buffer. After processing, we will save it into file. This is the multer.diskStorage json setting if we don't use sharp
 const multerStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/img/users');
@@ -18,7 +20,8 @@ const multerStorage = multer.diskStorage({
     const extensionFile = file.mimetype.split('/')[1]; //jpeg, png, etc.
     cb(null, `user-${req.user.id}-${Date.now()}.${extensionFile}`);
   },
-});
+});*/
+const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -38,6 +41,23 @@ const upload = multer({
 });
 
 exports.uploadUserPhoto = upload.single('photo');
+
+//just after upload image, we will add middleware to resize image, to assign .jpeg extension, and more processing
+exports.resizeUserPhoto = (req, res, next) => {
+  //if there is no file uploaded in the previous upload middleware. in the request, then next middleware or response.
+  if (!req.file) return next();
+  //when image is stored in file with multer.diskStorage, we create filename propery, but when it is stored in buffer, it doesn't exists this propery, and later it will be needed in following middleware, so we have to do this trick.
+  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+  //because we used multerStorage.memoryStorage, the file is saved in the memory buffer, accessible in req.file.buffer
+  sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/users/${req.file.filename}`);
+  //in the documentation there are more tricks to resize, and to get the center of picture, etc. Default position is center.
+
+  next();
+};
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};

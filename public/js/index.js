@@ -25,9 +25,10 @@ if (mapBox) {
 if (loginForm)
   loginForm.addEventListener('submit', e => {
     e.preventDefault();
+    const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    login(email, password);
+
+    login(name, email);
   });
 
 if (logOutBtn) logOutBtn.addEventListener('click', logout);
@@ -35,10 +36,14 @@ if (logOutBtn) logOutBtn.addEventListener('click', logout);
 if (accountForm)
   accountForm.addEventListener('submit', e => {
     e.preventDefault();
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-
-    updateSettings({ name, email }, 'data');
+    //we must recreate a multipart form data to include image to upload with backEnd.
+    const form = new FormData();
+    
+    form.append('name', document.getElementById('name').value);
+    form.append('email', document.getElementById('email').value);
+    form.append('photo', document.getElementById('photo').files[0]);
+    
+    updateSettings(form, 'data');
   });
 
 if (changePassForm)

@@ -8944,19 +8944,19 @@ if (mapBox) {
 
 if (loginForm) loginForm.addEventListener('submit', function (e) {
   e.preventDefault();
+  var name = document.getElementById('name').value;
   var email = document.getElementById('email').value;
-  var password = document.getElementById('password').value;
-  (0, _login.login)(email, password);
+  (0, _login.login)(name, email);
 });
 if (logOutBtn) logOutBtn.addEventListener('click', _login.logout);
 if (accountForm) accountForm.addEventListener('submit', function (e) {
-  e.preventDefault();
-  var name = document.getElementById('name').value;
-  var email = document.getElementById('email').value;
-  (0, _updateSettings.updateSettings)({
-    name: name,
-    email: email
-  }, 'data');
+  e.preventDefault(); //we must recreate a multipart form data to include image to upload with backEnd.
+
+  var form = new FormData();
+  form.append('name', document.getElementById('name').value);
+  form.append('email', document.getElementById('email').value);
+  form.append('photo', document.getElementById('photo').files[0]);
+  (0, _updateSettings.updateSettings)(form, 'data');
 });
 if (changePassForm) changePassForm.addEventListener('submit', /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(e) {
