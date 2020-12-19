@@ -8944,9 +8944,9 @@ if (mapBox) {
 
 if (loginForm) loginForm.addEventListener('submit', function (e) {
   e.preventDefault();
-  var name = document.getElementById('name').value;
   var email = document.getElementById('email').value;
-  (0, _login.login)(name, email);
+  var password = document.getElementById('password').value;
+  (0, _login.login)(email, password);
 });
 if (logOutBtn) logOutBtn.addEventListener('click', _login.logout);
 if (accountForm) accountForm.addEventListener('submit', function (e) {

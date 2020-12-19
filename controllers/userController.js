@@ -43,13 +43,13 @@ const upload = multer({
 exports.uploadUserPhoto = upload.single('photo');
 
 //just after upload image, we will add middleware to resize image, to assign .jpeg extension, and more processing
-exports.resizeUserPhoto = (req, res, next) => {
+exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   //if there is no file uploaded in the previous upload middleware. in the request, then next middleware or response.
   if (!req.file) return next();
   //when image is stored in file with multer.diskStorage, we create filename propery, but when it is stored in buffer, it doesn't exists this propery, and later it will be needed in following middleware, so we have to do this trick.
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
   //because we used multerStorage.memoryStorage, the file is saved in the memory buffer, accessible in req.file.buffer
-  sharp(req.file.buffer)
+  await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
@@ -57,7 +57,7 @@ exports.resizeUserPhoto = (req, res, next) => {
   //in the documentation there are more tricks to resize, and to get the center of picture, etc. Default position is center.
 
   next();
-};
+});
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};

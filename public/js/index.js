@@ -25,10 +25,9 @@ if (mapBox) {
 if (loginForm)
   loginForm.addEventListener('submit', e => {
     e.preventDefault();
-    const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
-
-    login(name, email);
+    const password = document.getElementById('password').value;
+    login(email, password);
   });
 
 if (logOutBtn) logOutBtn.addEventListener('click', logout);

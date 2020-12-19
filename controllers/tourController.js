@@ -1,9 +1,68 @@
+const multer = require('multer');
+const sharp = require('sharp');
 const Tour = require('../models/tourModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
 
 const { deleteOne, updateOne, createOne, getOne, getAll } = factory;
+
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(
+      new AppError('File is not an image! Please upload only images', 400),
+      false
+    );
+  }
+};
+
+//multer is a middleware function to process files, store them and more options.
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadTourImages = upload.fields([
+  { name: 'imageCover', maxCount: 1 },
+  { name: 'images', maxCount: 3 },
+]);
+//we upload files for several fields in the database.
+//if there is one file, upload.single('image'). When there are several upload.array('images', 5).
+
+//we will have images in memory buffer, we have to process and do a resize.
+exports.resizeTourImages = catchAsync(async (req, res, next) => {
+  if (!req.files.imageCover || !req.files.images) return next();
+  //1. If there is imageCover, we process image, and we save it in file, in the route we expecified
+  //we ad to the body imageCover property, because later, everything in the body it will be saved in the next middleware save tour.
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+  await sharp(req.files.imageCover[0].buffer)
+    .resize(2000, 1333)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/tours/${req.body.imageCover}`);
+  //2. If there are images to upload.
+  req.body.images = [];
+
+  //we create an array of promises, and we wait to finish all of them, because map has array of promises inside or images array, this is the way to wait to end all promises to go next.
+  await Promise.all(
+    req.files.images.map(async (file, i) => {
+      const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+
+      await sharp(file.buffer)
+        .resize(1500, 1000)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/tours/${filename}`);
+      req.body.images.push(filename);
+    })
+  );
+
+  next();
+});
 
 exports.aliasTopTours = (req, res, next) => {
   //this is middleware, this is why has next.
@@ -149,8 +208,8 @@ exports.getDistances = catchAsync(async (req, res, next) => {
       $project: {
         distance: 1,
         name: 1,
-      }
-    }
+      },
+    },
   ]);
 
   res.status(200).json({
