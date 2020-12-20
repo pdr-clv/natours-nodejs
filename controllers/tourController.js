@@ -35,31 +35,33 @@ exports.uploadTourImages = upload.fields([
 
 //we will have images in memory buffer, we have to process and do a resize.
 exports.resizeTourImages = catchAsync(async (req, res, next) => {
-  if (!req.files.imageCover || !req.files.images) return next();
   //1. If there is imageCover, we process image, and we save it in file, in the route we expecified
   //we ad to the body imageCover property, because later, everything in the body it will be saved in the next middleware save tour.
-  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
-  await sharp(req.files.imageCover[0].buffer)
-    .resize(2000, 1333)
-    .toFormat('jpeg')
-    .jpeg({ quality: 90 })
-    .toFile(`public/img/tours/${req.body.imageCover}`);
+  if (req.files.imageCover) {
+    req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+    await sharp(req.files.imageCover[0].buffer)
+      .resize(2000, 1333)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toFile(`public/img/tours/${req.body.imageCover}`);
+  }
   //2. If there are images to upload.
-  req.body.images = [];
+  if (req.files.images) {
+    req.body.images = [];
+    //we create an array of promises, and we wait to finish all of them, because map has array of promises inside or images array, this is the way to wait to end all promises to go next.
+    await Promise.all(
+      req.files.images.map(async (file, i) => {
+        const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
 
-  //we create an array of promises, and we wait to finish all of them, because map has array of promises inside or images array, this is the way to wait to end all promises to go next.
-  await Promise.all(
-    req.files.images.map(async (file, i) => {
-      const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
-
-      await sharp(file.buffer)
-        .resize(1500, 1000)
-        .toFormat('jpeg')
-        .jpeg({ quality: 90 })
-        .toFile(`public/img/tours/${filename}`);
-      req.body.images.push(filename);
-    })
-  );
+        await sharp(file.buffer)
+          .resize(1500, 1000)
+          .toFormat('jpeg')
+          .jpeg({ quality: 90 })
+          .toFile(`public/img/tours/${filename}`);
+        req.body.images.push(filename);
+      })
+    );
+  }
 
   next();
 });
