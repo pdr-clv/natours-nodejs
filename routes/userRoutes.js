@@ -4,7 +4,7 @@ const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 
 const {
-  singUp,
+  signUp,
   logIn,
   forgotPassword,
   resetPassword,
@@ -30,7 +30,7 @@ const {
 const router = express.Router();
 
 //all these routes don't need authentication.
-router.post('/signup', singUp);
+router.post('/signup', signUp);
 router.post('/login', logIn);
 router.get('/logout', logOut);
 router.post('/forgotpassword', forgotPassword);
