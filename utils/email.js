@@ -15,7 +15,13 @@ module.exports = class Email {
     //if we are in production Sendgrid, or if we are in development, mailtrap
     if (process.env.NODE_ENV === 'production') {
       // Sendgrid
-      return 1;
+      return nodemailer.createTransport({
+        service: 'SendGrid',
+        auth: {
+          user: process.env.SENDGRID_USERNAME,
+          pass: process.env.SENDGRID_PASSWORD,
+        },
+      });
     }
     // 1) Create a transporter. It can be gmail Service or any mail service.
     return nodemailer.createTransport({
