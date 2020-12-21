@@ -11,12 +11,14 @@ const {
   getLoginForm,
   getSignupForm,
   getAccount,
+  getMyTours,
 } = viewsController;
 
 const { createBookingCheckOut } = bookingController;
 
 //we will use protect for getAccount, it is more restrictive to get inside into user info
 router.get('/me', authController.protect, getAccount);
+router.get('/my-tours', authController.protect, getMyTours);
 
 //for the rest of routes, we will simply check if user is loggedIn to display conditionally elements, like for instance header with log in or log out
 router.use(authController.isLoggedIn);

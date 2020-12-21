@@ -3,7 +3,9 @@ const Tour = require('../models/tourModel');
 const Booking = require('../models/bookingModel');
 //const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-//const factory = require('./handlerFactory');
+const factory = require('./handlerFactory');
+
+const { getAll, getOne, createOne, updateOne, deleteOne } = factory;
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   //1. Get the currently booked tour
@@ -60,3 +62,9 @@ exports.createBookingCheckOut = catchAsync(async (req, res, next) => {
   //we will redirect to the original url of the request, but we remove from url out what is ahead from ?, that has the sensitive data.
   res.redirect(req.originalUrl.split('?')[0]);
 });
+
+exports.getAllBookings = getAll(Booking);
+exports.getBooking = getOne(Booking);
+exports.createBooking = createOne(Booking);
+exports.updateBooking = updateOne(Booking);
+exports.deleteBooking = deleteOne(Booking);

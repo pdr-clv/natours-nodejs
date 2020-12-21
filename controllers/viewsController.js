@@ -1,7 +1,7 @@
 const Tour = require('../models/tourModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-
+const Booking = require('../models/bookingModel');
 exports.getOverview = catchAsync(async (req, res, next) => {
   //1. Get tour data from collection
   const tours = await Tour.find();
@@ -63,3 +63,17 @@ exports.getAccount = (req, res) => {
     title: 'Your account',
   });
 };
+
+exports.getMyTours = catchAsync(async (req, res) => {
+  //it can be done with virtual populate, but we will do it manuallry in two steps.
+  //1. Find all bookings
+  const bookings = await Booking.find({ user: req.user.id });
+  //2. Find tours with the returned id.
+  const tourIDs = bookings.map((el) => el.tour);
+  const tours = await Tour.find({ _id: { $in: tourIDs } });
+  //we will reuse overview template.
+  res.status(200).render('overview', {
+    title: 'My tours',
+    tours,
+  });
+});
