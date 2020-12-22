@@ -77,3 +77,15 @@ exports.getMyTours = catchAsync(async (req, res) => {
     tours,
   });
 });
+
+exports.getForgotPasswordForm = (req, res) => {
+  res.status(200).render('forgot', {
+    title: 'Recover your password',
+  });
+};
+
+exports.getResetPasswordForm = (req, res) => {
+  res.status(200).render('reset', {
+    title: 'Enter your new password',
+  });
+};

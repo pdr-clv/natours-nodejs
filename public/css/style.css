@@ -298,6 +298,12 @@ body {
   outline-offset: 3px;
 }
 
+.a--forgot-password {
+  margin-left: 5px;
+  color: green;
+  font-size: 18px;
+}
+
 .header {
   background-color: #444;
   padding: 0 5rem;

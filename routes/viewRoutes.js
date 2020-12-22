@@ -12,6 +12,8 @@ const {
   getSignupForm,
   getAccount,
   getMyTours,
+  getForgotPasswordForm,
+  getResetPasswordForm,
 } = viewsController;
 
 const { createBookingCheckOut } = bookingController;
@@ -27,5 +29,7 @@ router.get('/', createBookingCheckOut, getOverview);
 router.get('/tour/:slug', getTour);
 router.get('/login', getLoginForm);
 router.get('/signup', getSignupForm);
+router.get('/forgotpassword', getForgotPasswordForm);
+router.get('/resetpassword', getResetPasswordForm);
 
 module.exports = router;

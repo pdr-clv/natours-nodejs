@@ -4,7 +4,7 @@ import '@babel/polyfill';
 //index.js will be the entry point for all javascript functionality of page, and other js files (or modules) that will be only functions imported here to use them.
 //bundler is watching any js file modification here, and updates the bundle.js common file that will be the one in application with all javascript functionality for all pages.
 
-import { login, logout } from './login';
+import { login, logout, signup, forgotPassword, resetPassword } from './login';
 import { displayMap } from './mapbox';
 import { updateSettings } from './updateSettings';
 import { bookTour } from './stripe';
@@ -16,6 +16,9 @@ const logOutBtn = document.querySelector('.nav__el--logout');
 const accountForm = document.querySelector('.form-user-data');
 const changePassForm = document.querySelector('.form-user-password');
 const bookBtn = document.getElementById('book-tour');
+const signUpForm = document.querySelector('.form--signup');
+const forgotPasswordForm = document.querySelector('.form--forgotpassword');
+const resetPasswordForm = document.querySelector('.form--reset-password')
 
 //DELEGATION OF FUNCTIONS
 if (mapBox) {
@@ -73,4 +76,31 @@ if (bookBtn)
     e.target.textContent = 'Book tour now!';
   });
 
+if (signUpForm)
+  signUpForm.addEventListener('submit', async(e) => {
+    e.preventDefault();
+    document.querySelector('.btn--green').disable = true;
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('password-confirm').value;
+
+    await signup({name, email, password, passwordConfirm});
+    document.querySelector('.btn--save-password').disable = false;
+  });
+
+if (forgotPasswordForm)
+  forgotPasswordForm.addEventListener('submit', e=> {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    forgotPassword(email);
+  });
+if (resetPasswordForm)
+  resetPasswordForm.addEventListener('submit', e=> {
+    e.preventDefault();
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('password-confirm').value;
+    const token = window.location.href.split('?')[1];
+    resetPassword(password, passwordConfirm, token);
+  })
 
