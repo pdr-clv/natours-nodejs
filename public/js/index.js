@@ -86,7 +86,7 @@ if (signUpForm)
     const passwordConfirm = document.getElementById('password-confirm').value;
 
     await signup({name, email, password, passwordConfirm});
-    document.querySelector('.btn--save-password').disable = false;
+    document.querySelector('.btn--green').disable = false;
   });
 
 if (forgotPasswordForm)
