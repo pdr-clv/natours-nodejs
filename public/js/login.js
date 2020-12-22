@@ -7,7 +7,7 @@ export const login = async (email, password) => {
   try {
     const res = await axios({
       method:'POST',
-      url:'http://127.0.0.1:3000/api/v1/users/login',
+      url:'/api/v1/users/login',
       data: {
         email,
         password
@@ -30,7 +30,7 @@ export const logout = async () => {
   try {
     const res = await axios({
       method:'GET',
-      url:'http://127.0.0.1:3000/api/v1/users/logout',
+      url:'/api/v1/users/logout',
     });
     //we will reload page here, and browser will detect the non valid cookie, and browser will show there is no user logged in.
     if(res.data.status === 'success') location.reload(true);
@@ -44,7 +44,7 @@ export const signup = async (data) => {
   try {
     const res = await axios({
       method:'POST',
-      url:'http://127.0.0.1:3000/api/v1/users/signup',
+      url:'/api/v1/users/signup',
       data,
     });
 
@@ -64,7 +64,7 @@ export const forgotPassword = async (email) => {
   try {
     const res = await axios({
       method:'POST',
-      url:'http://127.0.0.1:3000/api/v1/users/forgotpassword',
+      url:'/api/v1/users/forgotpassword',
       data: { email }
     });
 
@@ -84,7 +84,7 @@ export const resetPassword = async (password, passwordConfirm, token) => {
   try {
     const res = await axios({
       method:'PATCH',
-      url:`http://127.0.0.1:3000/api/v1/users/resetpassword/${token}`,
+      url:`/api/v1/users/resetpassword/${token}`,
       data: {
         password,
         passwordConfirm,

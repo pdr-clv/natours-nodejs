@@ -176,11 +176,11 @@ tourSchema.pre(/^find/, function (next) {
   });
   next();
 });
-
+/* // this middleare was only to check post middleware.
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} miliseconds)`);
   next();
-});
+});*/
 
 //AGGREGATION MIDDLEWARE
 // we will delete secretTour middleware, because otherwise it will not work geoNear aggregation to get distances from one point to Tours

@@ -8,6 +8,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 //we need cookie-parser package to get access to cookie sent from server to the browser
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
@@ -76,6 +77,10 @@ app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
+
+//this middleware simply compress text included in requests, and it is smaller and very small file.
+app.use(compression());
+
 // 3. Mounting our routes
 //only for certain routes, they will be applied middleware, in this case are the routes.
 
