@@ -43,3 +43,10 @@ process.on('unhandledRejection', (err) => {
   //we shutdown server.
   server.close(() => process.exit(1));
 });
+
+//every 24 hours heroku close app, if we detect this SIGTERM, we close it gently and gracefully to finish all pending request before shutting down.
+process.on('SIGTERM', () => {
+  console.log('SIGTERM Received by server. Shutting down gracefully!');
+
+  server.close(() => console.log('Process terminated!'));
+});
