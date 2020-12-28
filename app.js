@@ -19,6 +19,7 @@ const bookingRouter = require('./routes/bookingRoutes');
 const viewRouter = require('./routes/viewRoutes');
 
 const app = express();
+app.enable('trust proxy');
 
 //we tell express, we will use pug like templates for views
 app.set('view engine', 'pug');
