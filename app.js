@@ -9,7 +9,7 @@ const hpp = require('hpp');
 //we need cookie-parser package to get access to cookie sent from server to the browser
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
-consst cors = require('cors');
+const cors = require('cors');
 
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
