@@ -9,6 +9,7 @@ const hpp = require('hpp');
 //we need cookie-parser package to get access to cookie sent from server to the browser
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+consst cors = require('cors');
 
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
@@ -26,7 +27,9 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 //1. GLOBAL MIDDLEWARES. They will be applied to all routes and requests
-
+app.use(cors());
+app.options('*', cors());
+//use(cors()) is to allow any Cross Origin request, options is a http method that includes patch and delete requests, we must allow cors to all routes.
 //serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
